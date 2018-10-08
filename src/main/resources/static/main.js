@@ -270,14 +270,35 @@ var UserCreateComponent = /** @class */ (function () {
                 _angular_forms__WEBPACK_IMPORTED_MODULE_1__["Validators"].pattern("[^ @]*@[^ @]*")
             ])
         });
+        if (this.id) { //edit form
+            this.userService.findById(this.id).subscribe(function (user) {
+                _this.id = user.id;
+                _this.userForm.patchValue({
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                });
+            }, function (error) {
+                console.log(error);
+            });
+        }
     };
     UserCreateComponent.prototype.ngOnDestroy = function () {
+        this.sub.unsubscribe();
+    };
+    UserCreateComponent.prototype.onSubmit = function () {
         if (this.userForm.valid) {
-            var user = new _User__WEBPACK_IMPORTED_MODULE_3__["User"](null, this.userForm.controls['firstName'].value, this.userForm.controls['lastName'].value, this.userForm.controls['email'].value);
-            this.userService.saveUser(user).subscribe();
+            if (this.id) {
+                var user = new _User__WEBPACK_IMPORTED_MODULE_3__["User"](this.id, this.userForm.controls['firstName'].value, this.userForm.controls['lastName'].value, this.userForm.controls['email'].value);
+                this.userService.updateUser(user).subscribe();
+            }
+            else {
+                var user = new _User__WEBPACK_IMPORTED_MODULE_3__["User"](null, this.userForm.controls['firstName'].value, this.userForm.controls['lastName'].value, this.userForm.controls['email'].value);
+                this.userService.saveUser(user).subscribe();
+            }
+            this.userForm.reset();
+            this.router.navigate(['/user']);
         }
-        this.userForm.reset();
-        this.router.navigate(['/user']);
     };
     UserCreateComponent.prototype.redirectUserPage = function () {
         this.router.navigate(['/user']);
